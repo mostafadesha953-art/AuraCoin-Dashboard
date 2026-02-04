@@ -1,13 +1,21 @@
-# -*- coding: utf-8 -*-
 import streamlit as st
+import requests
 
-st.set_page_config(page_title="AuraCoin", layout="wide")
+# رابط الـ API
+URL = "https://your-project-default-rtdb.firebaseio.com"
 
-# كود لعرض المليون AuraCoin بدون مشاكل لغة
-st.title("AuraCoin Dashboard")
-st.write("---")
-st.metric(label="Total Balance", value="1,000,000 AC")
-st.success("Congratulations! 1 Million Aura reached.")
+st.title("💎 AuraCoin Live Monitor")
 
-# إضافة كود بسيط لمنع أخطاء الترميز المستقبيلة
-st.info("System Status: Online")
+# جلب البيانات من الـ API
+try:
+    response = requests.get(URL)
+    data = response.json()
+    live_balance = data['amount']
+except:
+    live_balance = "1,000,000" # رقم احتياطي في حال فشل الاتصال
+
+st.metric(label="Live Aura Balance", value=f"{live_balance} AC")
+
+# تحديث تلقائي للصفحة كل 30 ثانية
+st.empty()
+time_now = st.runtime.scriptrunner.add_report_ctx

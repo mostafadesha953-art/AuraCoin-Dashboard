@@ -2,25 +2,30 @@ import streamlit as st
 from supabase import create_client
 import time
 
-# بيانات الربط (ضع بياناتك هنا)
-URL = "رابط_الذي_حصلت_عليه"
-KEY = "المفتاح_الذي_نسخته_anon_public"
+# بياناتك الخاصة من Supabase
+URL = "https://ejlrrnoegmlqcfclonqa.supabase.co"
+KEY = "ضع_هنا_مفتاح_anon_public_الذي_نسخته"
 
+# تهيئة الاتصال
 supabase = create_client(URL, KEY)
 
 st.title("💎 AuraCoin Live Dashboard")
+st.write("---")
 
-# جلب البيانات
-def fetch_data():
+# جلب آخر رصيد تم تسجيله في الجدول
+def get_aura_balance():
     try:
-        response = supabase.table("mining_stats").select("balance").order("created_at", desc=True).limit(1).execute()
-        return response.data[0]['balance']
+        # جلب آخر سطر تم إضافته للجدول
+        result = supabase.table("mining_stats").select("balance").order("created_at", desc=True).limit(1).execute()
+        if result.data:
+            return result.data[0]['balance']
+        return "1,000,000" # رقم افتراضي
     except:
         return "1,000,000"
 
-balance = fetch_data()
-st.metric(label="إجمالي التعدين الحالي", value=f"{balance} AC")
+balance = get_aura_balance()
+st.metric(label="Total Aura Mined", value=f"{balance} AC")
 
-# تحديث تلقائي
+# تحديث الصفحة تلقائياً كل 10 ثواني
 time.sleep(10)
 st.rerun()
